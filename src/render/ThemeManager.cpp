@@ -7,11 +7,7 @@
 
 namespace {
     std::filesystem::path defaultBuiltinDir() {
-#ifdef __APPLE__
-        return "/usr/local/share/hyprmark/themes";
-#else
-        return "/usr/share/hyprmark/themes";
-#endif
+        return std::filesystem::path(HYPRMARK_DATADIR) / "themes";
     }
 
     std::filesystem::path defaultUserDir() {

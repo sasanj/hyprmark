@@ -42,11 +42,7 @@ class CMarkdownRenderer {
     std::string loadTemplate();
     std::string makeFullPage(const std::string& bodyHtml, const std::string& sourcePath);
 
-#ifdef __APPLE__
-    std::filesystem::path m_assetBase = "/usr/local/share/hyprmark";
-#else
-    std::filesystem::path m_assetBase = "/usr/share/hyprmark";
-#endif
+    std::filesystem::path m_assetBase = HYPRMARK_DATADIR;
     std::string           m_themeUrl;        // e.g. file:///usr/share/hyprmark/themes/hypr-dark.css
     std::string           m_cachedTemplate;  // lazy-loaded
 };

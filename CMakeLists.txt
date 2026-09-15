@@ -32,6 +32,9 @@ add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-unused-value
 
 add_compile_definitions(HYPRMARK_VERSION="${VERSION}")
 
+# Installed data dir baked into the binary (matches install() destinations below).
+add_compile_definitions(HYPRMARK_DATADIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}/hyprmark")
+
 if(DEFINED HYPRMARK_COMMIT)
   add_compile_definitions(HYPRMARK_COMMIT="${HYPRMARK_COMMIT}")
 else()
