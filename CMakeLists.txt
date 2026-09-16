@@ -81,6 +81,10 @@ if(HYPRMARK_COVERAGE)
   message(STATUS "Coverage instrumentation: ON")
 endif()
 
+# Frontmatter metadata panel. Stripping the block is always compiled in; this
+# option only gates the YAML parse and panel (and the yaml-cpp dependency).
+option(HYPRMARK_PARSE_FRONTMATTER "Parse YAML frontmatter into a metadata panel" ON)
+
 # dependencies
 message(STATUS "Checking deps...")
 
@@ -89,14 +93,20 @@ find_package(PkgConfig REQUIRED)
 find_package(Qt6 6.6 REQUIRED COMPONENTS Core Gui Widgets Network WebEngineCore WebEngineWidgets WebChannel Test)
 qt_standard_project_setup(REQUIRES 6.6)
 
+set(HYPRMARK_PKGS hyprutils>=0.8.0 hyprlang>=0.6.0 md4c md4c-html)
+if(HYPRMARK_PARSE_FRONTMATTER)
+  list(APPEND HYPRMARK_PKGS yaml-cpp)
+  add_compile_definitions(HYPRMARK_PARSE_FRONTMATTER)
+  message(STATUS "Frontmatter metadata panel: ON (yaml-cpp)")
+else()
+  message(STATUS "Frontmatter metadata panel: OFF (frontmatter still stripped)")
+endif()
+
 pkg_check_modules(
   deps
   REQUIRED
   IMPORTED_TARGET
-  hyprutils>=0.8.0
-  hyprlang>=0.6.0
-  md4c
-  md4c-html)
+  ${HYPRMARK_PKGS})
 
 file(GLOB_RECURSE SRCFILES CONFIGURE_DEPENDS "src/*.cpp")
 

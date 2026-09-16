@@ -187,6 +187,71 @@ img {
     max-width: 640px;
 }
 
+/* --- Frontmatter metadata panel ---
+ * Built from YAML frontmatter, collapsed by default. Colours come from the
+ * active theme's --hm-* custom properties. */
+details.hyprmark-meta {
+    margin: 0 0 1.5em;
+    border: 1px solid var(--hm-rule, rgba(128,128,128,.25));
+    border-radius: 6px;
+    background: var(--hm-table-head-bg, rgba(128,128,128,.06));
+    font-size: 0.9em;
+}
+details.hyprmark-meta > summary {
+    padding: 6px 12px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    color: var(--hm-heading-fg, inherit);
+}
+details.hyprmark-meta[open] > summary {
+    border-bottom: 1px solid var(--hm-rule, rgba(128,128,128,.25));
+}
+.hyprmark-meta-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: .04em;
+    border-radius: 999px;
+    background: var(--hm-inline-code-bg, rgba(128,128,128,.14));
+    color: var(--hm-link, inherit);
+    vertical-align: middle;
+}
+.hyprmark-meta-list {
+    margin: 0;
+    padding: 10px 12px;
+}
+.hyprmark-meta-list > dt {
+    font-weight: 600;
+    color: var(--hm-heading-fg, inherit);
+    margin-top: 6px;
+}
+.hyprmark-meta-list > dt:first-child {
+    margin-top: 0;
+}
+.hyprmark-meta-list > dd {
+    margin: 0 0 4px;
+}
+.hyprmark-meta-seq {
+    margin: 0;
+    padding-left: 1.2em;
+}
+.hyprmark-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.hyprmark-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--hm-inline-code-bg, rgba(128,128,128,.14));
+    color: var(--hm-fg, inherit);
+    font-size: 0.85em;
+}
+
 /* --- highlight.js palette ---
  * Each theme CSS sets its own --hljs-* custom properties on :root. This
  * file maps highlight.js's many class names to those variables so adding

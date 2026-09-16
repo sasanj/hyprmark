@@ -18,6 +18,8 @@ struct SRendered {
     std::vector<SHeading> headings;   // auto-extracted for TOC
     std::string           sourcePath; // absolute canonical path if rendered from disk
     std::string           sourceDir;  // directory containing the source (for relative images)
+    std::string           metaHtml;   // collapsed metadata panel; empty when there is no frontmatter
+    bool                  isOkf = false;
 };
 
 class CMarkdownRenderer {

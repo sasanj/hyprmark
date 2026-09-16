@@ -1,6 +1,7 @@
 #include "MarkdownRenderer.hpp"
 
 #include "../helpers/Log.hpp"
+#include "Frontmatter.hpp"
 
 #include <md4c-html.h>
 #include <md4c.h>
@@ -126,14 +127,17 @@ SRendered CMarkdownRenderer::renderString(const std::string& markdown, const std
             result.sourceDir = p.parent_path().string();
     }
 
+    const auto         fm     = Frontmatter::split(markdown);
+    const std::string& source = fm.found ? fm.body : markdown;
+
     std::string bodyRaw;
     const unsigned flags = MD_DIALECT_GITHUB | MD_FLAG_COLLAPSEWHITESPACE;
-    const int rc = md_html(markdown.data(), static_cast<MD_SIZE>(markdown.size()),
+    const int rc = md_html(source.data(), static_cast<MD_SIZE>(source.size()),
                            &appendChunk, &bodyRaw, flags, 0);
     if (rc != 0) {
         Debug::log(ERR, "md_html returned {}; falling back to escaped plain text", rc);
         std::string escaped = "<pre>";
-        for (char c : markdown) {
+        for (char c : source) {
             switch (c) {
                 case '&': escaped += "&amp;"; break;
                 case '<': escaped += "&lt;"; break;
@@ -145,7 +149,15 @@ SRendered CMarkdownRenderer::renderString(const std::string& markdown, const std
         bodyRaw = std::move(escaped);
     }
 
-    result.html     = injectHeadingIds(bodyRaw, result.headings);
+    std::string body = injectHeadingIds(bodyRaw, result.headings);
+
+    if (fm.found) {
+        const auto panel = Frontmatter::renderPanel(fm.yaml);
+        result.metaHtml  = panel.html;
+        result.isOkf     = panel.isOkf;
+    }
+
+    result.html     = result.metaHtml + body;
     result.fullPage = makeFullPage(result.html, result.sourcePath);
     return result;
 }
