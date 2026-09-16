@@ -152,9 +152,10 @@ SRendered CMarkdownRenderer::renderString(const std::string& markdown, const std
     std::string body = injectHeadingIds(bodyRaw, result.headings);
 
     if (fm.found) {
-        const auto panel = Frontmatter::renderPanel(fm.yaml);
+        const auto panel = Frontmatter::renderPanel(fm.yaml, result.sourcePath);
         result.metaHtml  = panel.html;
         result.isOkf     = panel.isOkf;
+        result.isSkill   = panel.isSkill;
     }
 
     result.html     = result.metaHtml + body;

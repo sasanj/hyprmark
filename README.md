@@ -18,6 +18,7 @@ A Markdown viewer for the Hyprland ecosystem.
 </p>
 
 - Qt6 + QtWebEngine render pipeline: Mermaid diagrams, KaTeX math, `highlight.js` code blocks with copy buttons, tables, task lists, and strike-through.
+- YAML frontmatter shown in a collapsed metadata panel, badged for Open Knowledge Format and Agent Skills documents.
 - 7 built-in themes (purple/cyan `hypr-dark` by default) plus user-dropped `~/.config/hypr/hyprmark/themes/*.css`.
 - Live reload on disk edits; hot-reload of `~/.config/hypr/hyprmark.conf`.
 - TOC sidebar, PDF export, drag-and-drop, remote-image opt-in.

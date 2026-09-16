@@ -338,6 +338,72 @@ TEST(FrontmatterPanelTest, AttestedComputationFields) {
     EXPECT_NE(p.html.find("<dt>receipt</dt><dd>/run-42.json</dd>"), std::string::npos);
 }
 
+TEST(FrontmatterPanelTest, SkillBadgeFromFileName) {
+    const auto p = Frontmatter::renderPanel("title: T\n", "/home/sasan/.agents/skills/foo/SKILL.md");
+    EXPECT_TRUE(p.isSkill);
+    EXPECT_NE(p.html.find(">SKILL</span>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, SkillFileNameIsCaseInsensitive) {
+    EXPECT_TRUE(Frontmatter::renderPanel("title: T\n", "/x/skill.md").isSkill);
+    EXPECT_TRUE(Frontmatter::renderPanel("title: T\n", "/x/Skill.Md").isSkill);
+}
+
+TEST(FrontmatterPanelTest, NonSkillFileNameHasNoBadge) {
+    const auto p = Frontmatter::renderPanel("title: T\n", "/x/notes.md");
+    EXPECT_FALSE(p.isSkill);
+    EXPECT_EQ(p.html.find(">SKILL</span>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, SkillBadgeFromShapeWithoutFileName) {
+    const auto p = Frontmatter::renderPanel("name: foo\ndescription: does things\n");
+    EXPECT_TRUE(p.isSkill);
+    EXPECT_NE(p.html.find(">SKILL</span>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, NameAloneIsNotASkill) {
+    EXPECT_FALSE(Frontmatter::renderPanel("name: foo\n").isSkill);
+}
+
+TEST(FrontmatterPanelTest, DescriptionAloneIsNotASkill) {
+    EXPECT_FALSE(Frontmatter::renderPanel("description: foo\n").isSkill);
+}
+
+TEST(FrontmatterPanelTest, NonScalarNameOrDescriptionIsNotASkill) {
+    EXPECT_FALSE(Frontmatter::renderPanel("name: [a]\ndescription: b\n").isSkill);
+    EXPECT_FALSE(Frontmatter::renderPanel("name: a\ndescription: [b]\n").isSkill);
+}
+
+TEST(FrontmatterPanelTest, PlainFrontmatterHasNoSkillBadge) {
+    const auto p = Frontmatter::renderPanel("title: T\nauthor: sasan\n");
+    EXPECT_FALSE(p.isSkill);
+    EXPECT_EQ(p.html.find(">SKILL</span>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, OkfAndSkillBadgesAreIndependent) {
+    const auto p = Frontmatter::renderPanel("type: table\nname: foo\ndescription: bar\n");
+    EXPECT_TRUE(p.isOkf);
+    EXPECT_TRUE(p.isSkill);
+    EXPECT_NE(p.html.find(">OKF</span>"), std::string::npos);
+    EXPECT_NE(p.html.find(">SKILL</span>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, SkillFileNameWithoutMappingYieldsNoPanel) {
+    const auto p = Frontmatter::renderPanel("just a string\n", "/x/SKILL.md");
+    EXPECT_TRUE(p.html.empty());
+    EXPECT_FALSE(p.isSkill);
+}
+
+TEST(FrontmatterPanelTest, SkillShapeRendersFields) {
+    const auto p = Frontmatter::renderPanel(
+        "name: gitea\ndescription: Interface with Gitea via tea\nlicense: MIT\n"
+        "metadata:\n  version: 1.0\n");
+    EXPECT_TRUE(p.isSkill);
+    EXPECT_NE(p.html.find("<dt>name</dt><dd>gitea</dd>"), std::string::npos);
+    EXPECT_NE(p.html.find("<dt>license</dt><dd>MIT</dd>"), std::string::npos);
+    EXPECT_NE(p.html.find("<dt>version</dt><dd>1.0</dd>"), std::string::npos);
+}
+
 #endif // HYPRMARK_PARSE_FRONTMATTER
 
 // ---------------------------------------------------------------------------
@@ -372,6 +438,7 @@ TEST_F(FrontmatterRenderTest, NoFrontmatterNoPanel) {
     const auto r = renderer.renderString("# Heading\n");
     EXPECT_TRUE(r.metaHtml.empty());
     EXPECT_FALSE(r.isOkf);
+    EXPECT_FALSE(r.isSkill);
     EXPECT_EQ(r.html.find("<details"), std::string::npos);
 }
 
@@ -431,5 +498,35 @@ TEST_F(FrontmatterRenderTest, RenderAttestedComputationFixture) {
     EXPECT_NE(r.metaHtml.find("<dt>runtime</dt><dd>python3.12</dd>"), std::string::npos);
     EXPECT_NE(r.metaHtml.find("<dt>computation</dt><dd>/computations/revenue.py</dd>"), std::string::npos);
     EXPECT_NE(r.metaHtml.find("<dt>attester</dt>"), std::string::npos);
+#endif
+}
+
+TEST_F(FrontmatterRenderTest, SkillFlagPropagates) {
+    const auto r = renderer.renderString("---\nname: foo\ndescription: bar\n---\n# H\n", "/skills/foo/SKILL.md");
+#ifdef HYPRMARK_PARSE_FRONTMATTER
+    EXPECT_TRUE(r.isSkill);
+    EXPECT_NE(r.metaHtml.find(">SKILL</span>"), std::string::npos);
+#else
+    EXPECT_FALSE(r.isSkill);
+#endif
+}
+
+TEST_F(FrontmatterRenderTest, SkillShapeWithoutFileName) {
+    const auto r = renderer.renderString("---\nname: foo\ndescription: bar\n---\n# H\n");
+#ifdef HYPRMARK_PARSE_FRONTMATTER
+    EXPECT_TRUE(r.isSkill);
+    EXPECT_NE(r.metaHtml.find(">SKILL</span>"), std::string::npos);
+#else
+    EXPECT_FALSE(r.isSkill);
+#endif
+}
+
+TEST_F(FrontmatterRenderTest, RenderSkillFixture) {
+    const auto r = renderer.renderFile(fixture("SKILL.md"));
+    EXPECT_NE(r.html.find("Gitea"), std::string::npos);
+#ifdef HYPRMARK_PARSE_FRONTMATTER
+    EXPECT_TRUE(r.isSkill);
+    EXPECT_NE(r.metaHtml.find(">SKILL</span>"), std::string::npos);
+    EXPECT_NE(r.metaHtml.find("<dt>description</dt>"), std::string::npos);
 #endif
 }

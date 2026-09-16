@@ -219,6 +219,10 @@ details.hyprmark-meta[open] > summary {
     color: var(--hm-link, inherit);
     vertical-align: middle;
 }
+.hyprmark-meta-badge-skill {
+    background: transparent;
+    border: 1px solid currentColor;
+}
 .hyprmark-meta-list {
     margin: 0;
     padding: 10px 12px;

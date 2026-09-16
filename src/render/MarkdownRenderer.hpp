@@ -20,6 +20,7 @@ struct SRendered {
     std::string           sourceDir;  // directory containing the source (for relative images)
     std::string           metaHtml;   // collapsed metadata panel; empty when there is no frontmatter
     bool                  isOkf = false;
+    bool                  isSkill = false;
 };
 
 class CMarkdownRenderer {

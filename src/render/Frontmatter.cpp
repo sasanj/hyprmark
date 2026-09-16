@@ -73,6 +73,9 @@ namespace Frontmatter {
 
 #include <yaml-cpp/yaml.h>
 
+#include <cctype>
+#include <filesystem>
+
 namespace Frontmatter {
 
     namespace {
@@ -97,6 +100,26 @@ namespace Frontmatter {
 
         std::string scalarText(const YAML::Node& n) {
             return n.IsScalar() ? n.Scalar() : "";
+        }
+
+        bool isSkillFileName(const std::string& sourcePath) {
+            if (sourcePath.empty())
+                return false;
+
+            const std::string name = std::filesystem::path(sourcePath).filename().string();
+            static constexpr std::string_view kSkillFile = "skill.md";
+            if (name.size() != kSkillFile.size())
+                return false;
+
+            for (size_t i = 0; i < name.size(); ++i) {
+                if (std::tolower(static_cast<unsigned char>(name[i])) != kSkillFile[i])
+                    return false;
+            }
+            return true;
+        }
+
+        bool hasSkillShape(const YAML::Node& root) {
+            return root["name"] && root["name"].IsScalar() && root["description"] && root["description"].IsScalar();
         }
 
         void renderNode(const YAML::Node& node, std::string& out, int depth);
@@ -156,7 +179,7 @@ namespace Frontmatter {
         }
     } // namespace
 
-    SPanel renderPanel(const std::string& yaml) {
+    SPanel renderPanel(const std::string& yaml, const std::string& sourcePath) {
         SPanel panel;
         if (yaml.size() > kMaxFrontmatterBytes)
             return panel;
@@ -172,12 +195,15 @@ namespace Frontmatter {
         if (!root.IsMap())
             return panel;
 
-        panel.isOkf = root["type"] && root["type"].IsScalar();
+        panel.isOkf   = root["type"] && root["type"].IsScalar();
+        panel.isSkill = isSkillFileName(sourcePath) || hasSkillShape(root);
 
         std::string out = "<details class=\"hyprmark-meta\">";
         out += "<summary>Metadata";
         if (panel.isOkf)
             out += " <span class=\"hyprmark-meta-badge\" title=\"Open Knowledge Format (OKF) v0.2\">OKF</span>";
+        if (panel.isSkill)
+            out += " <span class=\"hyprmark-meta-badge hyprmark-meta-badge-skill\" title=\"Agent Skill (SKILL.md)\">SKILL</span>";
         out += "</summary>";
         renderMap(root, out, 0);
         out += "</details>";
@@ -191,7 +217,7 @@ namespace Frontmatter {
 #else // !HYPRMARK_PARSE_FRONTMATTER
 
 namespace Frontmatter {
-    SPanel renderPanel(const std::string&) {
+    SPanel renderPanel(const std::string&, const std::string&) {
         return {};
     }
 } // namespace Frontmatter

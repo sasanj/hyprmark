@@ -16,12 +16,14 @@ namespace Frontmatter {
     SParsed split(const std::string& markdown);
 
     struct SPanel {
-        std::string html;          // collapsed <details> panel; empty when nothing to show
-        bool        isOkf = false; // a top-level `type` was present
+        std::string html;            // collapsed <details> panel; empty when nothing to show
+        bool        isOkf = false;   // a top-level `type` was present
+        bool        isSkill = false; // a SKILL.md file, or frontmatter carrying name + description
     };
 
-    // Renders the metadata panel from raw YAML. Returns an empty panel on parse
+    // Renders the metadata panel from raw YAML. `sourcePath`, when known, lets a
+    // SKILL.md file be recognised by name. Returns an empty panel on parse
     // failure, on an oversized block, or when the document is not a mapping.
-    SPanel renderPanel(const std::string& yaml);
+    SPanel renderPanel(const std::string& yaml, const std::string& sourcePath = {});
 
 } // namespace Frontmatter
