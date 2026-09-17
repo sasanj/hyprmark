@@ -227,20 +227,57 @@ details.hyprmark-meta[open] > summary {
     margin: 0;
     padding: 10px 12px;
 }
-.hyprmark-meta-list > dt {
-    font-weight: 600;
-    color: var(--hm-heading-fg, inherit);
+/* Each entry is a term/value pair on one line, so a `sequence -> <ul>`
+ * item that wraps a multi-line `<dl>` still reads as one bulleted item
+ * instead of the marker appearing to belong to the first field only. */
+.hyprmark-meta-row {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 0.6em;
+    align-items: baseline;
+}
+.hyprmark-meta-row + .hyprmark-meta-row {
     margin-top: 6px;
 }
-.hyprmark-meta-list > dt:first-child {
-    margin-top: 0;
+.hyprmark-meta-row > dt {
+    font-weight: 600;
+    color: var(--hm-heading-fg, inherit);
+    margin: 0;
 }
-.hyprmark-meta-list > dd {
-    margin: 0 0 4px;
+.hyprmark-meta-row > dt::after {
+    content: ":";
+}
+.hyprmark-meta-row > dd {
+    margin: 0;
+    min-width: 0;
 }
 .hyprmark-meta-seq {
     margin: 0;
-    padding-left: 1.2em;
+    padding-left: 0;
+    list-style: none;
+}
+/* Sequence items get a small "stack of lines" SVG marker instead of the
+ * browser's disc. The icon is masked (not filled) so it inherits the theme's
+ * currentColor, and lives in its own grid column so it stays pinned to the
+ * item's first row no matter how many fields that mapping has. */
+.hyprmark-meta-seq > li {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 0.5em;
+    align-items: start;
+}
+.hyprmark-meta-seq > li::before {
+    content: "";
+    width: 0.8em;
+    height: 0.8em;
+    margin-top: 0.4em; /* optical centring against the first text line */
+    background-color: currentColor;
+    -webkit-mask: url("icons/meta-seq.svg") center / contain no-repeat;
+    mask: url("icons/meta-seq.svg") center / contain no-repeat;
+}
+/* The item's own list owns the spacing now that the marker is a grid cell. */
+.hyprmark-meta-seq > li > .hyprmark-meta-list {
+    padding: 0;
 }
 .hyprmark-tags {
     display: flex;

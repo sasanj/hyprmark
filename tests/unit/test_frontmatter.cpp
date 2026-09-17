@@ -210,11 +210,23 @@ TEST(FrontmatterPanelTest, SequenceOfScalars) {
     EXPECT_NE(p.html.find("<ul class=\"hyprmark-meta-seq\"><li>a</li><li>b</li></ul>"), std::string::npos);
 }
 
+TEST(FrontmatterPanelTest, MapEntriesAreRows) {
+    const auto p = Frontmatter::renderPanel("title: T\n");
+    EXPECT_NE(p.html.find("<div class=\"hyprmark-meta-row\"><dt>title</dt><dd>T</dd></div>"), std::string::npos);
+}
+
 TEST(FrontmatterPanelTest, NestedMap) {
     const auto p = Frontmatter::renderPanel("generated:\n  by: agent\n  at: now\n");
     EXPECT_NE(p.html.find("<dt>generated</dt>"), std::string::npos);
-    EXPECT_NE(p.html.find("<dt>by</dt><dd>agent</dd>"), std::string::npos);
-    EXPECT_NE(p.html.find("<dt>at</dt><dd>now</dd>"), std::string::npos);
+    EXPECT_NE(p.html.find("<div class=\"hyprmark-meta-row\"><dt>by</dt><dd>agent</dd></div>"), std::string::npos);
+    EXPECT_NE(p.html.find("<div class=\"hyprmark-meta-row\"><dt>at</dt><dd>now</dd></div>"), std::string::npos);
+}
+
+TEST(FrontmatterPanelTest, SequenceOfMapsItemFieldsAreRows) {
+    const auto p = Frontmatter::renderPanel("verified:\n  - by: human:sasan\n    at: yesterday\n");
+    EXPECT_NE(p.html.find("<ul class=\"hyprmark-meta-seq\">"), std::string::npos);
+    EXPECT_NE(p.html.find("<div class=\"hyprmark-meta-row\"><dt>by</dt><dd>human:sasan</dd></div>"), std::string::npos);
+    EXPECT_NE(p.html.find("<div class=\"hyprmark-meta-row\"><dt>at</dt><dd>yesterday</dd></div>"), std::string::npos);
 }
 
 TEST(FrontmatterPanelTest, SequenceOfMaps) {

@@ -131,6 +131,7 @@ namespace Frontmatter {
                     break;
 
                 const std::string key = scalarText(kv.first);
+                out += "<div class=\"hyprmark-meta-row\">";
                 out += "<dt>" + htmlEscape(key) + "</dt>";
 
                 const auto& val = kv.second;
@@ -150,6 +151,7 @@ namespace Frontmatter {
                     renderNode(val, out, depth + 1);
                     out += "</dd>";
                 }
+                out += "</div>";
             }
             out += "</dl>";
         }

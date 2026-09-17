@@ -154,13 +154,18 @@ if(APPLE)
     set_source_files_properties(${_BUNDLE_VENDOR} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/vendor")
   endif()
 
+  file(GLOB _BUNDLE_ICONS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/assets/icons/*.svg")
+  if(_BUNDLE_ICONS)
+    set_source_files_properties(${_BUNDLE_ICONS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/icons")
+  endif()
+
   # Ship example.conf as Resources/hyprmark.conf (same rename as the Linux
   # install). MACOSX_PACKAGE_LOCATION cannot rename, so stage a copy first.
   set(_BUNDLE_CONF "${CMAKE_BINARY_DIR}/bundle-staging/hyprmark.conf")
   configure_file("${CMAKE_SOURCE_DIR}/assets/example.conf" "${_BUNDLE_CONF}" COPYONLY)
   set_source_files_properties("${_BUNDLE_CONF}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources" GENERATED TRUE)
 
-  target_sources(hyprmark PRIVATE ${_BUNDLE_RESOURCES} ${_BUNDLE_THEMES} ${_BUNDLE_VENDOR} "${_BUNDLE_CONF}")
+  target_sources(hyprmark PRIVATE ${_BUNDLE_RESOURCES} ${_BUNDLE_THEMES} ${_BUNDLE_VENDOR} ${_BUNDLE_ICONS} "${_BUNDLE_CONF}")
 else()
   target_link_libraries(hyprmark PRIVATE rt Threads::Threads hyprmark_core)
 endif()
@@ -182,6 +187,9 @@ else()
   install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/themes
           DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/hyprmark
           FILES_MATCHING PATTERN "*.css")
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/icons
+          DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/hyprmark
+          FILES_MATCHING PATTERN "*.svg")
   install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/vendor
           DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/hyprmark
           OPTIONAL)
