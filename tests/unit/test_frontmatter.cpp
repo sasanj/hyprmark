@@ -320,6 +320,16 @@ TEST(FrontmatterPanelTest, OversizedYamlYieldsEmptyPanel) {
     EXPECT_TRUE(Frontmatter::renderPanel(yaml).html.empty());
 }
 
+TEST(FrontmatterPanelTest, SingleHugeScalarSuppressesPanel) {
+    // Sits under the 256 KiB frontmatter cap, but HTML-escaping one scalar
+    // pushes the rendered panel past kMaxPanelBytes (512 KiB).
+    const std::string yaml = "k: " + std::string(200 * 1024, '<') + "\n";
+    ASSERT_LT(yaml.size(), 256u * 1024u);
+    const auto p = Frontmatter::renderPanel(yaml);
+    EXPECT_TRUE(p.html.empty());
+    EXPECT_FALSE(p.isOkf);
+}
+
 TEST(FrontmatterPanelTest, DuplicateKeysDoNotCrash) {
     const auto p = Frontmatter::renderPanel("a: 1\na: 2\n");
     if (!p.html.empty()) {

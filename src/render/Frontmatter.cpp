@@ -208,6 +208,14 @@ namespace Frontmatter {
         renderMap(root, out, 0);
         out += "</details>";
 
+        // renderMap() only checks the cap at loop boundaries, so a single large
+        // key or scalar can overrun it. Drop the panel rather than emit output
+        // past the intended bound.
+        if (out.size() > kMaxPanelBytes) {
+            Debug::log(ERR, "frontmatter panel exceeded {} bytes; suppressing", kMaxPanelBytes);
+            return {};
+        }
+
         panel.html = std::move(out);
         return panel;
     }
