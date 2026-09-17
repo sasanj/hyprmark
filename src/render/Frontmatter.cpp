@@ -17,20 +17,20 @@ namespace Frontmatter {
         }
 
         // Finds the next line that is exactly "---", starting at `from`.
-        bool findClosingDelimiter(const std::string& in, size_t from, SDelimiter& out) {
+        bool findClosingDelimiter(std::string_view in, size_t from, SDelimiter& out) {
             size_t pos = from;
             while (pos <= in.size()) {
                 const auto eol     = in.find('\n', pos);
-                const auto lineEnd = (eol == std::string::npos) ? in.size() : eol;
+                const auto lineEnd = (eol == std::string_view::npos) ? in.size() : eol;
 
-                std::string_view line(in.data() + pos, lineEnd - pos);
+                std::string_view line = in.substr(pos, lineEnd - pos);
                 if (isDelimiterLine(line)) {
                     out.start = pos;
                     out.after = (eol == std::string::npos) ? in.size() : eol + 1;
                     return true;
                 }
 
-                if (eol == std::string::npos)
+                if (eol == std::string_view::npos)
                     break;
                 pos = eol + 1;
             }
@@ -38,9 +38,9 @@ namespace Frontmatter {
         }
     } // namespace
 
-    SParsed split(const std::string& markdown) {
+    SParsed split(std::string_view markdown) {
         SParsed result;
-        result.body = markdown;
+        result.body = markdown; // zero-copy view of the whole input
 
         size_t pos = 0;
         if (markdown.size() >= 3 && static_cast<unsigned char>(markdown[0]) == 0xEF &&
@@ -49,11 +49,11 @@ namespace Frontmatter {
 
         // The opening delimiter must be the very first line.
         const auto eol      = markdown.find('\n', pos);
-        const auto firstEnd = (eol == std::string::npos) ? markdown.size() : eol;
-        if (!isDelimiterLine(std::string_view(markdown.data() + pos, firstEnd - pos)))
+        const auto firstEnd = (eol == std::string_view::npos) ? markdown.size() : eol;
+        if (!isDelimiterLine(markdown.substr(pos, firstEnd - pos)))
             return result;
 
-        const size_t contentStart = (eol == std::string::npos) ? markdown.size() : eol + 1;
+        const size_t contentStart = (eol == std::string_view::npos) ? markdown.size() : eol + 1;
 
         SDelimiter delim;
         if (!findClosingDelimiter(markdown, contentStart, delim))

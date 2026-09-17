@@ -1,19 +1,23 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace Frontmatter {
 
     struct SParsed {
-        bool        found = false; // a frontmatter block was present and well-formed
-        std::string body;          // markdown with the block removed
-        std::string yaml;          // raw YAML text of the block
+        bool             found = false; // a frontmatter block was present and well-formed
+        std::string_view body;          // markdown with the block removed; aliases the input
+        std::string_view yaml;          // raw YAML text of the block; aliases the input
     };
 
     // Splits a leading "---" YAML block off the document. Always compiled in:
     // removing the block keeps it out of the rendered body and the TOC. When no
-    // block is present, `found` is false and `body` equals the input.
-    SParsed split(const std::string& markdown);
+    // block is present, `found` is false and `body` covers the whole input, so
+    // the common path never copies.
+    //
+    // The returned views alias `markdown`, which must outlive the result.
+    SParsed split(std::string_view markdown);
 
     struct SPanel {
         std::string html;            // collapsed <details> panel; empty when nothing to show

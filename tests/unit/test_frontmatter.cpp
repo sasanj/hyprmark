@@ -37,6 +37,22 @@ TEST(FrontmatterSplitTest, NoFrontmatterLeavesBodyUntouched) {
     EXPECT_TRUE(fm.yaml.empty());
 }
 
+TEST(FrontmatterSplitTest, NoFrontmatterBodyAliasesInput) {
+    const std::string md = "# Heading\n\nBody.\n";
+    const auto        fm = Frontmatter::split(md);
+    EXPECT_FALSE(fm.found);
+    EXPECT_EQ(fm.body.data(), md.data());
+    EXPECT_EQ(fm.body.size(), md.size());
+}
+
+TEST(FrontmatterSplitTest, StrippedBodyAndYamlAliasInput) {
+    const std::string md = "---\ntitle: x\n---\n# H\n";
+    const auto        fm = Frontmatter::split(md);
+    ASSERT_TRUE(fm.found);
+    EXPECT_EQ(fm.body.data(), md.data() + md.find("# H"));
+    EXPECT_EQ(fm.yaml.data(), md.data() + md.find("title"));
+}
+
 TEST(FrontmatterSplitTest, DelimiterNotOnFirstLineIsNotFrontmatter) {
     const auto fm = Frontmatter::split("\n---\ntitle: x\n---\n# H\n");
     EXPECT_FALSE(fm.found);

@@ -127,8 +127,8 @@ SRendered CMarkdownRenderer::renderString(const std::string& markdown, const std
             result.sourceDir = p.parent_path().string();
     }
 
-    const auto         fm     = Frontmatter::split(markdown);
-    const std::string& source = fm.found ? fm.body : markdown;
+    const auto             fm     = Frontmatter::split(markdown);
+    const std::string_view source = fm.body;
 
     std::string bodyRaw;
     const unsigned flags = MD_DIALECT_GITHUB | MD_FLAG_COLLAPSEWHITESPACE;
@@ -152,7 +152,7 @@ SRendered CMarkdownRenderer::renderString(const std::string& markdown, const std
     std::string body = injectHeadingIds(bodyRaw, result.headings);
 
     if (fm.found) {
-        const auto panel = Frontmatter::renderPanel(fm.yaml, result.sourcePath);
+        const auto panel = Frontmatter::renderPanel(std::string(fm.yaml), result.sourcePath);
         result.metaHtml  = panel.html;
         result.isOkf     = panel.isOkf;
         result.isSkill   = panel.isSkill;
